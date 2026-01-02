@@ -19,18 +19,18 @@ import {
   ChevronDown, ChevronUp, Palette, Sliders
 } from 'lucide-react';
 
-// --- 🌈 全球性少数群体 (LGBTQ+) 身份色彩方案 ---
+// --- 🌈 全球性少数群体 (LGBTQ+) 身份色彩方案 (夜间模式深度优化版) ---
 const THEMES = {
-  t1: { primary: 'red-500', gradient: 'from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-600', bgLight: 'bg-red-200', bgDark: 'bg-red-900/40' },
-  t2: { primary: 'purple-600', gradient: 'from-pink-500 via-purple-600 to-blue-600', bgLight: 'bg-purple-200', bgDark: 'bg-purple-900/40' },
-  t3: { primary: 'sky-400', gradient: 'from-sky-300 via-pink-200 via-white via-pink-200 to-sky-300', bgLight: 'bg-sky-200', bgDark: 'bg-pink-900/30' },
-  t4: { primary: 'orange-600', gradient: 'from-orange-600 via-orange-300 via-white via-pink-300 to-pink-600', bgLight: 'bg-orange-200', bgDark: 'bg-orange-900/30' },
-  t5: { primary: 'pink-500', gradient: 'from-pink-500 via-yellow-400 to-cyan-400', bgLight: 'bg-pink-200', bgDark: 'bg-pink-900/30' },
-  t6: { primary: 'yellow-500', gradient: 'from-yellow-400 via-white via-purple-500 to-slate-900', bgLight: 'bg-yellow-200', bgDark: 'bg-purple-900/30' },
-  t7: { primary: 'slate-600', gradient: 'from-slate-900 via-slate-400 via-white to-purple-600', bgLight: 'bg-slate-300', bgDark: 'bg-slate-800/50' },
-  t8: { primary: 'purple-400', gradient: 'from-purple-400 via-white to-green-500', bgLight: 'bg-purple-200', bgDark: 'bg-green-900/30' },
-  t9: { primary: 'pink-600', gradient: 'from-pink-500 via-white via-purple-600 via-slate-900 to-blue-700', bgLight: 'bg-pink-200', bgDark: 'bg-purple-900/30' },
-  t10: { primary: 'green-600', gradient: 'from-green-600 via-green-300 via-white via-slate-400 to-slate-900', bgLight: 'bg-green-200', bgDark: 'bg-green-900/30' }
+  t1: { primary: 'red-500', gradient: 'from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-600', bgLight: 'bg-red-200', bgDark: 'bg-red-950/20' },
+  t2: { primary: 'purple-600', gradient: 'from-pink-500 via-purple-600 to-blue-600', bgLight: 'bg-purple-200', bgDark: 'bg-purple-950/20' },
+  t3: { primary: 'sky-400', gradient: 'from-sky-300 via-pink-200 via-white via-pink-200 to-sky-300', bgLight: 'bg-sky-200', bgDark: 'bg-slate-900/20' },
+  t4: { primary: 'orange-600', gradient: 'from-orange-600 via-orange-300 via-white via-pink-300 to-pink-600', bgLight: 'bg-orange-200', bgDark: 'bg-orange-950/20' },
+  t5: { primary: 'pink-500', gradient: 'from-pink-500 via-yellow-400 to-cyan-400', bgLight: 'bg-pink-200', bgDark: 'bg-pink-950/20' },
+  t6: { primary: 'yellow-500', gradient: 'from-yellow-400 via-white via-purple-500 to-slate-900', bgLight: 'bg-yellow-200', bgDark: 'bg-yellow-950/10' },
+  t7: { primary: 'slate-600', gradient: 'from-slate-900 via-slate-400 via-white to-purple-600', bgLight: 'bg-slate-300', bgDark: 'bg-slate-950/30' },
+  t8: { primary: 'purple-400', gradient: 'from-purple-400 via-white to-green-500', bgLight: 'bg-purple-200', bgDark: 'bg-green-950/20' },
+  t9: { primary: 'pink-600', gradient: 'from-pink-500 via-white via-purple-600 via-slate-900 to-blue-700', bgLight: 'bg-pink-200', bgDark: 'bg-purple-950/20' },
+  t10: { primary: 'green-600', gradient: 'from-green-600 via-green-300 via-white via-slate-400 to-slate-900', bgLight: 'bg-green-200', bgDark: 'bg-green-950/20' }
 };
 
 // --- 📚 常量与数据模型 ---
@@ -219,7 +219,7 @@ const callAI = async (prompt, systemPrompt, config, userProfile = null) => {
 
 // --- 🧩 UI 组件 ---
 const GlassCard = ({ children, className = "", onClick }) => (
-  <div onClick={onClick} className={`backdrop-blur-2xl bg-white/50 dark:bg-slate-900/50 border border-white/40 dark:border-slate-800/40 shadow-sm transition-all duration-300 ${className}`}>
+  <div onClick={onClick} className={`backdrop-blur-2xl bg-white/50 dark:bg-black/80 border border-white/40 dark:border-white/10 shadow-sm transition-all duration-300 ${className}`}>
     {children}
   </div>
 );
@@ -397,7 +397,7 @@ const ChatInterface = ({ contact, onUpdateContact, onBack, onEdit, userProfile, 
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 relative overflow-hidden text-slate-900 dark:text-slate-100">
+    <div className="flex flex-col h-full bg-slate-50 dark:bg-black relative overflow-hidden text-slate-900 dark:text-slate-100">
       <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl border-b border-white/20 dark:border-slate-800/20 z-50">
         <div className="p-3 flex items-center justify-between">
            <div className="flex items-center gap-3">
@@ -577,38 +577,45 @@ const MirrorTab = ({ userProfile, setUserProfile, contacts, isEditingSelf, setIs
         </GlassCard>
 
 
-        {/* 🔥 修改后的 API 配置面板 */}
-        <GlassCard className="rounded-[2.5rem] p-6 space-y-4 border-white/60 shadow-inner bg-white/20">
+        {/* 🔥 修复后的 API 配置面板 (深黑模式适配版) */}
+        <GlassCard className="rounded-[2.5rem] p-6 space-y-4 border-white/60 shadow-inner bg-white/20 dark:bg-white/5">
           <div className="flex items-center gap-2 mb-2">
             <Key size={14} className={`text-${activeTheme.primary}`} />
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400">核心共振参数 (API)</h3>
+            {/* 修复：标题文字颜色 */}
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">核心共振参数 (API)</h3>
           </div>
           <div className="grid gap-3">
+            {/* 1. 下拉菜单 */}
             <select 
               value={apiConfig.modelType} 
               onChange={e => setApiConfig({...apiConfig, modelType: e.target.value})}
-              className="w-full p-3 bg-white/40 dark:bg-black/20 border border-white/40 rounded-2xl text-[11px] font-bold outline-none"
+              // 修复：背景变黑(bg-slate-900)，文字变白(text-white)
+              className="w-full p-3 bg-white/40 dark:bg-slate-900 border border-white/40 dark:border-slate-800 rounded-2xl text-[11px] font-bold outline-none dark:text-white"
             >
               <option value="openai">模式: OpenAI / 通用转发 (推荐)</option>
               <option value="gemini">模式: Google Gemini (官方)</option>
             </select>
             
+            {/* 2. Base URL 输入框 */}
             <input 
               placeholder="Base URL (例如 https://api.openai.com/v1)" 
               value={apiConfig.baseUrl} 
               onChange={e => setApiConfig({...apiConfig, baseUrl: e.target.value})}
-              className="w-full p-3 bg-white/40 dark:bg-black/20 border border-white/40 rounded-2xl text-[11px] outline-none"
+              // 修复：背景变黑，文字变白，Placeholder 变暗灰
+              className="w-full p-3 bg-white/40 dark:bg-slate-900 border border-white/40 dark:border-slate-800 rounded-2xl text-[11px] outline-none dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600"
             />
             
+            {/* 3. API Key 输入框 */}
             <input 
               type="password"
               placeholder="API Key (密钥: sk-...)" 
               value={apiConfig.apiKey} 
               onChange={e => setApiConfig({...apiConfig, apiKey: e.target.value})}
-              className="w-full p-3 bg-white/40 dark:bg-black/20 border border-white/40 rounded-2xl text-[11px] outline-none placeholder:text-slate-300"
+              // 修复：同上
+              className="w-full p-3 bg-white/40 dark:bg-slate-900 border border-white/40 dark:border-slate-800 rounded-2xl text-[11px] outline-none dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600"
             />
 
-            {/* ✨ 升级版：Model Name 输入 + 拉取按钮 */}
+            {/* 4. Model Name 输入 + 按钮 */}
             <div className="flex gap-2">
                 <div className="relative flex-1">
                     <input 
@@ -616,9 +623,9 @@ const MirrorTab = ({ userProfile, setUserProfile, contacts, isEditingSelf, setIs
                     placeholder="Model Name (如 gpt-4o, gemini-1.5-flash)" 
                     value={apiConfig.modelName} 
                     onChange={e => setApiConfig({...apiConfig, modelName: e.target.value})}
-                    className="w-full p-3 bg-white/40 dark:bg-black/20 border border-white/40 rounded-2xl text-[11px] outline-none"
+                    // 修复：同上
+                    className="w-full p-3 bg-white/40 dark:bg-slate-900 border border-white/40 dark:border-slate-800 rounded-2xl text-[11px] outline-none dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600"
                     />
-                    {/* 这个 datalist 配合 input list 属性，实现了“既能输入又能下拉” */}
                     <datalist id="model-options">
                         {availableModels.map(m => <option key={m} value={m} />)}
                     </datalist>
@@ -626,7 +633,8 @@ const MirrorTab = ({ userProfile, setUserProfile, contacts, isEditingSelf, setIs
                 <button 
                     onClick={fetchModels}
                     disabled={isFetchingModels}
-                    className={`px-4 rounded-2xl bg-white/40 dark:bg-slate-800/40 border border-white/40 text-${activeTheme.primary} hover:bg-white/60 transition-all active:scale-95 disabled:opacity-50`}
+                    // 修复：按钮背景变黑，Hover 效果适配
+                    className={`px-4 rounded-2xl bg-white/40 dark:bg-slate-900 border border-white/40 dark:border-slate-800 text-${activeTheme.primary} hover:bg-white/60 dark:hover:bg-slate-800 transition-all active:scale-95 disabled:opacity-50`}
                     title="从服务器拉取可用模型列表"
                 >
                     {isFetchingModels ? <Loader2 size={16} className="animate-spin"/> : <RefreshCw size={16}/>}
@@ -677,12 +685,12 @@ export default function App() {
   const activeContact = contacts.find(c => c.id === activeContactId);
 
   return (
-    <div className={`h-[100dvh] w-full flex flex-col font-sans transition-all duration-700 ${isDark ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'} overflow-hidden relative selection:bg-white/30`}>
+    <div className={`h-[100dvh] w-full flex flex-col font-sans transition-all duration-700 ${isDark ? 'dark bg-black text-slate-100' : 'bg-slate-50 text-slate-900'} overflow-hidden relative selection:bg-white/30`}>
       
       {/* 动态主题背景层 */}
       <div className="fixed inset-0 pointer-events-none transition-all duration-1000">
-        <div className={`absolute top-[-15%] left-[-15%] w-[80%] h-[80%] opacity-40 blur-[140px] animate-pulse rounded-full ${activeTheme.bgLight} dark:${activeTheme.bgDark}`} />
-        <div className={`absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] opacity-30 blur-[120px] rounded-full bg-gradient-to-br ${activeTheme.gradient}`} />
+        <div className={`absolute top-[-15%] left-[-15%] w-[80%] h-[80%] opacity-40 dark:opacity-10 blur-[140px] animate-pulse rounded-full ${activeTheme.bgLight} dark:${activeTheme.bgDark}`} />
+        <div className={`absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] opacity-30 dark:opacity-10 blur-[120px] rounded-full bg-gradient-to-br ${activeTheme.gradient}`} />
       </div>
 
       <ThemeDrawer currentThemeId={themeId} onSelect={setThemeId} isOpen={isThemeDrawerOpen} onClose={() => setIsThemeDrawerOpen(false)} />
@@ -690,7 +698,7 @@ export default function App() {
       <div className="flex-1 overflow-hidden relative z-10">
         {activeTab === 'resonance' && (
            view === 'list' ? (
-             <div className="h-full flex flex-col animate-in fade-in bg-slate-50/50 dark:bg-slate-950">
+             <div className="h-full flex flex-col animate-in fade-in bg-slate-50/50 dark:bg-black">
                <div className="p-4 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border-b border-white/20 dark:border-slate-800/20 flex items-center justify-between shadow-sm">
                  <h1 className="text-2xl font-serif font-black italic tracking-tighter">Resonance</h1>
                  <ThemeToggle isDark={isDark} setIsDark={setIsDark} onThemeOpen={() => setIsThemeDrawerOpen(true)} activeTheme={activeTheme} />
