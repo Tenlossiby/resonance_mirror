@@ -219,7 +219,11 @@ const callAI = async (prompt, systemPrompt, config, userProfile = null) => {
 
 // --- 🧩 UI 组件 ---
 const GlassCard = ({ children, className = "", onClick }) => (
-  <div onClick={onClick} className={`backdrop-blur-2xl bg-white/50 dark:bg-black/80 border border-white/40 dark:border-white/10 shadow-sm transition-all duration-300 ${className}`}>
+  // 核心改动：
+  // 1. dark:bg-black (纯黑背景)
+  // 2. dark:border-stone-800 (深岩灰色边框，不再发白)
+  // 3. 移除透明度，确保不透出底下的杂色
+  <div onClick={onClick} className={`backdrop-blur-2xl bg-white/50 dark:bg-black border border-white/40 dark:border-stone-800 shadow-sm transition-all duration-300 ${className}`}>
     {children}
   </div>
 );
@@ -282,7 +286,7 @@ const PersonaEditor = ({ initialData, onSave, onCancel, isSelf, title, isDark, s
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-50/50 dark:bg-slate-950 overflow-y-auto animate-in fade-in pb-24 text-slate-900 dark:text-slate-100">
+    <div className="flex flex-col h-full bg-slate-50/50 dark:bg-black overflow-y-auto pb-32 text-slate-900 dark:text-stone-300">
       <div className="p-4 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border-b border-white/20 dark:border-slate-800/20 flex items-center justify-between sticky top-0 z-20">
         <div className="flex items-center gap-3">
           <button onClick={onCancel} className="p-2 rounded-full hover:bg-white/40 dark:hover:bg-slate-800/40 transition-all"><ArrowLeft size={20} className="text-slate-500" /></button>
@@ -537,7 +541,7 @@ const MirrorTab = ({ userProfile, setUserProfile, contacts, isEditingSelf, setIs
   if (isEditingSelf) return <PersonaEditor title="核心自我" initialData={userProfile} onSave={(u) => { setUserProfile(u); setIsEditingSelf(false); }} onCancel={() => setIsEditingSelf(false)} isSelf={true} isDark={isDark} setIsDark={setIsDark} activeTheme={activeTheme} onThemeOpen={onThemeOpen} />;
 
   return (
-    <div className="flex flex-col h-full bg-slate-50/50 dark:bg-slate-950 overflow-y-auto pb-32 text-slate-900 dark:text-slate-100">
+    <div className="flex flex-col h-full bg-slate-50/50 dark:bg-black overflow-y-auto pb-32 text-slate-900 dark:text-stone-300">
       <div className="p-4 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border-b border-white/20 dark:border-slate-800/20 flex items-center justify-between sticky top-0 z-10 shadow-sm">
         <h1 className="text-2xl font-serif font-black tracking-tighter italic">Mirror</h1>
         <ThemeToggle isDark={isDark} setIsDark={setIsDark} onThemeOpen={onThemeOpen} activeTheme={activeTheme} />
@@ -577,54 +581,46 @@ const MirrorTab = ({ userProfile, setUserProfile, contacts, isEditingSelf, setIs
         </GlassCard>
 
 
-        {/* 🔥 修复后的 API 配置面板 (深黑模式适配版) */}
-        <GlassCard className="rounded-[2.5rem] p-6 space-y-4 border-white/60 shadow-inner bg-white/20 dark:bg-white/5">
+        {/* 墨色适配版：API 面板 */}
+        <GlassCard className="rounded-[2.5rem] p-6 space-y-4 border-white/60 shadow-inner bg-white/20 dark:bg-transparent">
           <div className="flex items-center gap-2 mb-2">
             <Key size={14} className={`text-${activeTheme.primary}`} />
-            {/* 修复：标题文字颜色 */}
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">核心共振参数 (API)</h3>
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-stone-500">核心共振参数 (API)</h3>
           </div>
           <div className="grid gap-3">
-            {/* 1. 下拉菜单 */}
             <select 
               value={apiConfig.modelType} 
               onChange={e => setApiConfig({...apiConfig, modelType: e.target.value})}
-              // 修复：背景变黑(bg-slate-900)，文字变白(text-white)
-              className="w-full p-3 bg-white/40 dark:bg-slate-900 border border-white/40 dark:border-slate-800 rounded-2xl text-[11px] font-bold outline-none dark:text-white"
+              // 关键：dark:bg-black (纯黑底) dark:border-stone-800 (深灰边) dark:text-stone-200 (米白字)
+              className="w-full p-3 bg-white/40 dark:bg-black border border-white/40 dark:border-stone-800 rounded-2xl text-[11px] font-bold outline-none dark:text-stone-200"
             >
-              <option value="openai">模式: OpenAI / 通用转发 (推荐)</option>
+              <option value="openai">模式: OpenAI / 通用转发</option>
               <option value="gemini">模式: Google Gemini (官方)</option>
             </select>
             
-            {/* 2. Base URL 输入框 */}
             <input 
-              placeholder="Base URL (例如 https://api.openai.com/v1)" 
+              placeholder="Base URL..." 
               value={apiConfig.baseUrl} 
               onChange={e => setApiConfig({...apiConfig, baseUrl: e.target.value})}
-              // 修复：背景变黑，文字变白，Placeholder 变暗灰
-              className="w-full p-3 bg-white/40 dark:bg-slate-900 border border-white/40 dark:border-slate-800 rounded-2xl text-[11px] outline-none dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600"
+              className="w-full p-3 bg-white/40 dark:bg-black border border-white/40 dark:border-stone-800 rounded-2xl text-[11px] outline-none dark:text-stone-200 placeholder:text-slate-400 dark:placeholder:text-stone-700"
             />
             
-            {/* 3. API Key 输入框 */}
             <input 
               type="password"
-              placeholder="API Key (密钥: sk-...)" 
+              placeholder="API Key..." 
               value={apiConfig.apiKey} 
               onChange={e => setApiConfig({...apiConfig, apiKey: e.target.value})}
-              // 修复：同上
-              className="w-full p-3 bg-white/40 dark:bg-slate-900 border border-white/40 dark:border-slate-800 rounded-2xl text-[11px] outline-none dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600"
+              className="w-full p-3 bg-white/40 dark:bg-black border border-white/40 dark:border-stone-800 rounded-2xl text-[11px] outline-none dark:text-stone-200 placeholder:text-slate-400 dark:placeholder:text-stone-700"
             />
 
-            {/* 4. Model Name 输入 + 按钮 */}
             <div className="flex gap-2">
                 <div className="relative flex-1">
                     <input 
                     list="model-options"
-                    placeholder="Model Name (如 gpt-4o, gemini-1.5-flash)" 
+                    placeholder="Model Name..." 
                     value={apiConfig.modelName} 
                     onChange={e => setApiConfig({...apiConfig, modelName: e.target.value})}
-                    // 修复：同上
-                    className="w-full p-3 bg-white/40 dark:bg-slate-900 border border-white/40 dark:border-slate-800 rounded-2xl text-[11px] outline-none dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600"
+                    className="w-full p-3 bg-white/40 dark:bg-black border border-white/40 dark:border-stone-800 rounded-2xl text-[11px] outline-none dark:text-stone-200 placeholder:text-slate-400 dark:placeholder:text-stone-700"
                     />
                     <datalist id="model-options">
                         {availableModels.map(m => <option key={m} value={m} />)}
@@ -633,9 +629,7 @@ const MirrorTab = ({ userProfile, setUserProfile, contacts, isEditingSelf, setIs
                 <button 
                     onClick={fetchModels}
                     disabled={isFetchingModels}
-                    // 修复：按钮背景变黑，Hover 效果适配
-                    className={`px-4 rounded-2xl bg-white/40 dark:bg-slate-900 border border-white/40 dark:border-slate-800 text-${activeTheme.primary} hover:bg-white/60 dark:hover:bg-slate-800 transition-all active:scale-95 disabled:opacity-50`}
-                    title="从服务器拉取可用模型列表"
+                    className={`px-4 rounded-2xl bg-white/40 dark:bg-black border border-white/40 dark:border-stone-800 text-${activeTheme.primary} hover:bg-white/60 dark:hover:bg-stone-900 transition-all`}
                 >
                     {isFetchingModels ? <Loader2 size={16} className="animate-spin"/> : <RefreshCw size={16}/>}
                 </button>
@@ -685,12 +679,15 @@ export default function App() {
   const activeContact = contacts.find(c => c.id === activeContactId);
 
   return (
-    <div className={`h-[100dvh] w-full flex flex-col font-sans transition-all duration-700 ${isDark ? 'dark bg-black text-slate-100' : 'bg-slate-50 text-slate-900'} overflow-hidden relative selection:bg-white/30`}>
+    // 1. 全局背景：dark:bg-black (纯黑)
+    // 2. 全局文字：dark:text-stone-300 (米灰色，比纯白护眼，符合墨色质感)
+    <div className={`h-[100dvh] w-full flex flex-col font-sans transition-all duration-700 ${isDark ? 'dark bg-black text-stone-300' : 'bg-slate-50 text-slate-900'} overflow-hidden relative selection:bg-white/30`}>
       
       {/* 动态主题背景层 */}
       <div className="fixed inset-0 pointer-events-none transition-all duration-1000">
-        <div className={`absolute top-[-15%] left-[-15%] w-[80%] h-[80%] opacity-40 dark:opacity-10 blur-[140px] animate-pulse rounded-full ${activeTheme.bgLight} dark:${activeTheme.bgDark}`} />
-        <div className={`absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] opacity-30 dark:opacity-10 blur-[120px] rounded-full bg-gradient-to-br ${activeTheme.gradient}`} />
+        {/* 修复：夜间光斑透明度强制降为 5% (dark:opacity-5)，解决“发灰”的根源 */}
+        <div className={`absolute top-[-15%] left-[-15%] w-[80%] h-[80%] opacity-40 dark:opacity-5 blur-[140px] animate-pulse rounded-full ${activeTheme.bgLight} dark:${activeTheme.bgDark}`} />
+        <div className={`absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] opacity-30 dark:opacity-5 blur-[120px] rounded-full bg-gradient-to-br ${activeTheme.gradient}`} />
       </div>
 
       <ThemeDrawer currentThemeId={themeId} onSelect={setThemeId} isOpen={isThemeDrawerOpen} onClose={() => setIsThemeDrawerOpen(false)} />
@@ -698,34 +695,40 @@ export default function App() {
       <div className="flex-1 overflow-hidden relative z-10">
         {activeTab === 'resonance' && (
            view === 'list' ? (
+             // Tab 1 容器：确保也是纯黑
              <div className="h-full flex flex-col animate-in fade-in bg-slate-50/50 dark:bg-black">
-               <div className="p-4 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border-b border-white/20 dark:border-slate-800/20 flex items-center justify-between shadow-sm">
-                 <h1 className="text-2xl font-serif font-black italic tracking-tighter">Resonance</h1>
+               {/* Header：白天纯黑字，夜间米白字；背景夜间纯黑 */}
+               <div className="p-4 bg-white/40 dark:bg-black/80 backdrop-blur-xl border-b border-white/20 dark:border-stone-900 flex items-center justify-between shadow-sm sticky top-0 z-20">
+                 <h1 className="text-2xl font-serif font-black italic tracking-tighter text-black dark:text-stone-200">Resonance</h1>
                  <ThemeToggle isDark={isDark} setIsDark={setIsDark} onThemeOpen={() => setIsThemeDrawerOpen(true)} activeTheme={activeTheme} />
                </div>
+               
+               {/* 列表内容区 */}
                <div className="flex-1 overflow-y-auto p-6 space-y-6 pb-24 no-scrollbar">
-                 <button onClick={() => { setActiveContactId(null); setView('create'); }} className={`w-full py-10 border border-dashed border-slate-300/50 dark:border-slate-700/50 rounded-[2.5rem] flex flex-col items-center justify-center gap-3 bg-white/20 dark:bg-white/5 backdrop-blur-xl transition-all hover:bg-white/40 shadow-sm group`}>
+                 <button onClick={() => { setActiveContactId(null); setView('create'); }} className={`w-full py-10 border border-dashed border-slate-300/50 dark:border-stone-800 rounded-[2.5rem] flex flex-col items-center justify-center gap-3 bg-white/20 dark:bg-stone-900/20 backdrop-blur-xl transition-all hover:bg-white/40 dark:hover:bg-stone-900/40 shadow-sm group`}>
                    <Plus size={24} className={`text-${activeTheme.primary}`}/>
-                   <span className="font-black uppercase text-[10px] tracking-widest text-slate-400">共振显影</span>
+                   <span className="font-black uppercase text-[10px] tracking-widest text-slate-400 dark:text-stone-500">共振显影</span>
                  </button>
+                 {/* ...保持联系人列表映射逻辑不变... */}
                  <div className="grid gap-4">
                    {contacts.map(c => (
+                    // 这里不需要改，因为外层 GlassCard 已经改黑了
                     <GlassCard key={c.id} onClick={() => { setActiveContactId(c.id); setView('chat'); }} className="p-5 rounded-[2.2rem] flex justify-between items-center group active:scale-95 transition-all relative overflow-hidden">
                       <div className="flex items-center gap-5 relative z-10">
-                         <div className="p-1 rounded-full backdrop-blur-lg bg-white/40 border border-white/60 shadow-sm">
+                         <div className="p-1 rounded-full backdrop-blur-lg bg-white/40 border border-white/60 dark:border-stone-700 shadow-sm">
                             <div className={`w-14 h-14 bg-gradient-to-br ${activeTheme.gradient} rounded-full flex items-center justify-center text-white font-bold text-xl border-2 border-white/20`}>{c.name?.[0]}</div>
                          </div>
                          <div className="space-y-1">
-                            <h3 className="font-bold text-lg tracking-tight">{c.name}</h3>
+                            {/* 名字：夜间米白 */}
+                            <h3 className="font-bold text-lg tracking-tight text-slate-900 dark:text-stone-100">{c.name}</h3>
                             <div className={`text-[9px] font-black uppercase text-${activeTheme.primary} font-mono tracking-widest bg-${activeTheme.primary}/10 px-2 py-0.5 rounded-full border border-${activeTheme.primary}/10 w-fit`}>{c.mbtiUnknown ? "未知性格" : c.mbti}</div>
                          </div>
                       </div>
-                      <div className="relative z-10 p-2 rounded-full bg-white/20 border border-white/40"><ChevronLeft size={16} className="text-slate-400 rotate-180"/></div>
+                      <div className="relative z-10 p-2 rounded-full bg-white/20 dark:bg-stone-900 border border-white/40 dark:border-stone-800"><ChevronLeft size={16} className="text-slate-400 rotate-180"/></div>
                     </GlassCard>
                    ))}
                  </div>
-                 {/* UI 署名点 */}
-                 <div className="text-center opacity-20 text-[9px] font-black tracking-widest uppercase py-8">
+                 <div className="text-center opacity-20 text-[9px] font-black tracking-widest uppercase py-8 text-slate-500 dark:text-stone-600">
                    Manifested by Tenlossiby
                  </div>
                </div>
