@@ -1,0 +1,28 @@
+{
+  "name": "resonance_mirror",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.2",
+    "autoprefixer": "^10.4.23",
+    "postcss": "^8.5.6",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "tailwindcss": "^4.1.18",
+    "vite": "^7.3.0"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.18",
+    "lucide-react": "^0.562.0"
+  }
+}

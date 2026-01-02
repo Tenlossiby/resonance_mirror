@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:match*",
+      "destination": "https://anyrouter.top/v1/:match*"
+    }
+  ]
+}
