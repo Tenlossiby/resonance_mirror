@@ -690,7 +690,7 @@ export default function App() {
       <div className="flex-1 overflow-hidden relative z-10">
         {activeTab === 'resonance' && (
            view === 'list' ? (
-             <div className="h-full flex flex-col animate-in fade-in">
+             <div className="h-full flex flex-col animate-in fade-in bg-slate-50/50 dark:bg-slate-950">
                <div className="p-4 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border-b border-white/20 dark:border-slate-800/20 flex items-center justify-between shadow-sm">
                  <h1 className="text-2xl font-serif font-black italic tracking-tighter">Resonance</h1>
                  <ThemeToggle isDark={isDark} setIsDark={setIsDark} onThemeOpen={() => setIsThemeDrawerOpen(true)} activeTheme={activeTheme} />
