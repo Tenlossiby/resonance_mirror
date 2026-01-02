@@ -122,8 +122,25 @@ const callAI = async (prompt, systemPrompt, config, userProfile = null) => {
   
   if (!apiKey) return "((未检测到 API Key，请在 Mirror 界面底部填写))";
   
-  // 智能判断：如果是官方 /api 路径，则使用中转；如果用户自己填了 http 开头的地址，就信用户的
-  const finalBaseUrl = baseUrl.startsWith('http') ? baseUrl : '/api';
+// --- 修复开始: 自动设置默认官方地址 ---
+  let finalBaseUrl = baseUrl;
+  
+  // 如果用户没有填 Base URL (或者填的是空的)，自动填入官方默认地址
+  if (!finalBaseUrl || finalBaseUrl.trim() === '') {
+    if (modelType === 'gemini') {
+      finalBaseUrl = 'https://generativelanguage.googleapis.com';
+    } else {
+      // OpenAI 默认地址 (国内需确保网络能直连，或者填入中转地址)
+      finalBaseUrl = 'https://api.openai.com/v1';
+    }
+  } else {
+    // 如果用户填了地址，确保它是 http 开头的完整地址
+    // 如果用户只填了 /api (旧习惯)，这里做个兼容，但不建议
+    if (!finalBaseUrl.startsWith('http')) {
+       finalBaseUrl = 'https://api.openai.com/v1'; 
+    }
+  }
+  // --- 修复结束 ---
 
   let personalityContext = "";
   if (userProfile) {
