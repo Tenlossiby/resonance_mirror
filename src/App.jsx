@@ -157,7 +157,7 @@ const callAI = async (prompt, systemPrompt, config, userProfile = null) => {
   try {
     if (modelType === 'gemini') {
       // Gemini 格式
-      const url = `${cleanBase}/v1beta/models/${modelName || 'gemini-pro'}:generateContent?key=${apiKey}`;
+      const url = `${cleanBase}/v1beta/models/${modelName || 'gemini-2.5-flash'}:generateContent?key=${apiKey}`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
