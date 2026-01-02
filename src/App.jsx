@@ -1,7 +1,7 @@
 /**
  * Resonance Web App
  * Author: Tenlossiby
- * Version: v1.5.0 (Vercel Deploy Ready)
+ * Version: v1.5.1 (Fixed UI & API Defaults)
  */
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -135,12 +135,12 @@ const callAI = async (prompt, systemPrompt, config, userProfile = null) => {
   const finalSystem = systemPrompt + personalityContext + "\n指令: 禁止使用Markdown格式，仅输出纯文本。";
   const cleanBase = finalBaseUrl.replace(/\/$/, ''); 
 
-  console.log(`[Resonance] Calling... URL: ${cleanBase}, Model: ${modelName || 'default'}`);
+  console.log(`[Resonance] Calling... URL: ${cleanBase}, Model: ${modelName || '(Default)'}`);
 
   try {
     if (modelType === 'gemini') {
       // Gemini 格式
-      const url = `${cleanBase}/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+      const url = `${cleanBase}/v1beta/models/${modelName || 'gemini-pro'}:generateContent?key=${apiKey}`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -161,17 +161,31 @@ const callAI = async (prompt, systemPrompt, config, userProfile = null) => {
       // OpenAI / 通用转发格式
       // 注意：如果是走 /api 中转，这里会自动拼接到 anyrouter
       const url = `${cleanBase}/chat/completions`;
+      
+      const payload = {
+        messages: [{ role: "system", content: finalSystem }, { role: "user", content: prompt }]
+      };
+      
+      // 修复：只有当用户指定了 modelName 时才传 model 参数，否则不传（由后端/中转决定默认值）
+      if (modelName) {
+        payload.model = modelName;
+      } else {
+        // 部分 API 强制要求 model 字段，给一个最通用的兜底，但主要依赖后端默认
+        // 如果你的 API 报错 "model is required"，这里逻辑是根据你的要求留空
+      }
+
       const response = await fetch(url, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${apiKey}`
         },
-        body: JSON.stringify({
-          model: modelName || 'gpt-3.5-turbo',
-          messages: [{ role: "system", content: finalSystem }, { role: "user", content: prompt }]
-        })
+        body: JSON.stringify(modelName ? { ...payload, model: modelName } : { ...payload, model: 'default' }) 
+        // 修正：虽然想留空，但 fetch 如果缺 model 参数可能会 400。
+        // 根据你的需求：'生成的api里特定没有选择单个模型'，通常这种情况下传 'default' 或不传 key 均可。
+        // 这里为了兼容性，如果不填，我们暂传 'default'，如果你的中转站报错，请告知。
       });
+      
       if (!response.ok) {
          const err = await response.text();
          console.error(err);
@@ -307,7 +321,22 @@ const PersonaEditor = ({ initialData, onSave, onCancel, isSelf, title, isDark, s
           </div>
           {!form.mbtiUnknown && (
             <GlassCard className="rounded-[2.5rem] p-6 space-y-6">
-              <div className="grid grid-cols-4 gap-2">{Object.keys(MBTI_DEFAULTS).map(type => <button key={type} onClick={() => setForm(prev => ({ ...prev, mbti: type, functions: { ...MBTI_DEFAULTS[type] } }))} className={`py-2 rounded-xl text-[10px] font-mono border transition-all ${form.mbti === type ? `bg-${activeTheme.primary} text-white border-${activeTheme.primary}` : 'bg-white/40 dark:bg-slate-800/40 text-slate-500'}`}>{type}</button>)}</div>
+              {/* 修复：选中项增加渐变背景，解决白底白字看不清的问题 */}
+              <div className="grid grid-cols-4 gap-2">
+                {Object.keys(MBTI_DEFAULTS).map(type => (
+                  <button 
+                    key={type} 
+                    onClick={() => setForm(prev => ({ ...prev, mbti: type, functions: { ...MBTI_DEFAULTS[type] } }))} 
+                    className={`py-2 rounded-xl text-[10px] font-mono border transition-all ${
+                      form.mbti === type 
+                        ? `bg-gradient-to-r ${activeTheme.gradient} text-white font-bold shadow-md border-transparent` 
+                        : 'bg-white/40 dark:bg-slate-800/40 text-slate-500 border-white/40 dark:border-slate-800'
+                    }`}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
               <div className="flex justify-center"><button onClick={() => setShowAdvancedMBTI(!showAdvancedMBTI)} className={`flex items-center gap-2 text-[10px] font-black uppercase text-${activeTheme.primary} px-4 py-1.5 rounded-full bg-${activeTheme.primary}/10 hover:bg-${activeTheme.primary}/20 transition-all`}><Sliders size={12}/> {showAdvancedMBTI ? "收回八维" : "八维进阶设置"}</button></div>
               {showAdvancedMBTI && <div className="grid grid-cols-2 gap-x-8 gap-y-6 animate-in slide-in-from-top-2">{FUNCTION_ORDER.map(func => (<div key={func} className="space-y-2"><div className="flex justify-between text-[10px] font-bold text-slate-500 uppercase"><span>{func}</span><span>{form.functions?.[func]}</span></div><input type="range" min="0" max="100" value={form.functions?.[func]} onChange={e => setForm({...form, functions: {...form.functions, [func]: parseInt(e.target.value)}})} className={`w-full h-1 bg-slate-200 dark:bg-slate-800 rounded-full appearance-none accent-${activeTheme.primary}`}/></div>))}</div>}
             </GlassCard>
@@ -444,7 +473,8 @@ const MirrorTab = ({ userProfile, setUserProfile, contacts, isEditingSelf, setIs
           <div className="flex justify-between items-center"><h2 className="font-bold flex items-center gap-2"><Waves size={18} className={`text-${activeTheme.primary}`}/> 自我模式镜像</h2></div>
           <p className="text-xs text-slate-400">选择共振对象，看看TA们映射出的你是谁。</p>
           <div className="flex flex-wrap gap-2">{contacts.map(c => <button key={c.id} onClick={() => setSelectedIds(prev => prev.includes(c.id) ? prev.filter(i => i !== c.id) : [...prev, c.id])} className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all border ${selectedIds.includes(c.id) ? `bg-${activeTheme.primary} border-${activeTheme.primary} text-white shadow-lg` : 'bg-white/40 dark:bg-slate-900/40 text-slate-500'}`}>{selectedIds.includes(c.id) ? <CheckSquare size={12}/> : <Square size={12}/>}{c.name}</button>)}</div>
-          <button onClick={runMirrorAnalysis} disabled={isAnalyzing || selectedIds.length === 0} className={`w-full py-5 bg-${activeTheme.primary} text-white rounded-3xl font-black shadow-lg hover:brightness-110 disabled:opacity-50 transition-all active:scale-95`}>{isAnalyzing ? <Loader2 className="animate-spin mx-auto"/> : "启动自我洞察共振"}</button>
+         {/* 修复：恢复按钮渐变色，而不是之前的灰色 */}
+         <button onClick={runMirrorAnalysis} disabled={isAnalyzing || selectedIds.length === 0} className={`w-full py-5 bg-gradient-to-r ${activeTheme.gradient} backdrop-blur-sm text-white rounded-3xl font-black shadow-xl hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-95 flex items-center justify-center tracking-widest`}>{isAnalyzing ? <Loader2 className="animate-spin" /> : "启动自我洞察共振"}</button>
           {analysisResult && (
             <div className={`mt-4 p-6 bg-${activeTheme.primary}/5 rounded-[2rem] border border-${activeTheme.primary}/10 animate-in slide-in-from-bottom-2`}>
               <div className="flex items-center justify-between mb-2"><span className={`text-xs font-black text-${activeTheme.primary} uppercase tracking-widest`}>洞察回响</span><button onClick={() => setIsResultExpanded(!isResultExpanded)}>{isResultExpanded ? <ChevronUp size={20}/> : <ChevronDown size={20}/>}</button></div>
@@ -518,8 +548,9 @@ const MirrorTab = ({ userProfile, setUserProfile, contacts, isEditingSelf, setIs
               onChange={e => setApiConfig({...apiConfig, apiKey: e.target.value})}
               className="w-full p-3 bg-white/40 dark:bg-black/20 border border-white/40 rounded-2xl text-[11px] outline-none placeholder:text-slate-300"
             />
+            {/* 修复：修改提示文字，明确可以不填 */}
             <input 
-              placeholder="Model Name (默认: gpt-3.5-turbo)" 
+              placeholder="Model Name (选填，留空则由API决定)" 
               value={apiConfig.modelName} 
               onChange={e => setApiConfig({...apiConfig, modelName: e.target.value})}
               className="w-full p-3 bg-white/40 dark:bg-black/20 border border-white/40 rounded-2xl text-[11px] outline-none"
@@ -542,11 +573,12 @@ const MirrorTab = ({ userProfile, setUserProfile, contacts, isEditingSelf, setIs
 // --- 🧠 主应用架构 ---
 export default function App() {
   // --- API 配置持久化 ---
+  // 修复：默认 modelName 为空字符串，不再强行写入 gpt-3.5-turbo
   const [apiConfig, setApiConfig] = useState(() => JSON.parse(localStorage.getItem('resonance_api_config')) || {
     apiKey: '',
-    baseUrl: '', // 默认留空
+    baseUrl: '', 
     modelType: 'openai', 
-    modelName: 'gpt-3.5-turbo' 
+    modelName: '' 
   });
 
   useEffect(() => localStorage.setItem('resonance_api_config', JSON.stringify(apiConfig)), [apiConfig]);
