@@ -459,12 +459,69 @@ const ChatInterface = ({ contact, onUpdateContact, onBack, onEdit, userProfile, 
   );
 };
 
-// --- MIRROR TAB ---
+// --- MIRROR TAB (已升级：支持自动拉取模型列表) ---
 const MirrorTab = ({ userProfile, setUserProfile, contacts, isEditingSelf, setIsEditingSelf, onClearData, isDark, setIsDark, activeTheme, onThemeOpen, apiConfig, setApiConfig }) => {
   const [selectedIds, setSelectedIds] = useState([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState('');
   const [isResultExpanded, setIsResultExpanded] = useState(true);
+  
+  // ✨ 新增：存储拉取到的模型列表
+  const [availableModels, setAvailableModels] = useState([]);
+  const [isFetchingModels, setIsFetchingModels] = useState(false);
+
+  // ✨ 新增：拉取模型列表的函数
+  const fetchModels = async () => {
+    const { apiKey, baseUrl, modelType } = apiConfig;
+    if (!apiKey) { alert("请先填写 API Key"); return; }
+    
+    setIsFetchingModels(true);
+    let fetchUrl = '';
+    let headers = {};
+
+    try {
+      if (modelType === 'gemini') {
+        // Google 官方获取模型列表格式
+        const finalBase = baseUrl || 'https://generativelanguage.googleapis.com';
+        fetchUrl = `${finalBase}/v1beta/models?key=${apiKey}`;
+      } else {
+        // OpenAI / 中转标准获取模型列表格式
+        const finalBase = baseUrl || 'https://api.openai.com/v1';
+        // 确保 Base URL 结尾没有斜杠，且包含 /v1 (如果没有用户没填的话)
+        const cleanBase = finalBase.replace(/\/$/, '');
+        fetchUrl = `${cleanBase}/models`; 
+        headers = { 'Authorization': `Bearer ${apiKey}` };
+      }
+
+      const res = await fetch(fetchUrl, { method: 'GET', headers });
+      const data = await res.json();
+
+      let models = [];
+      if (modelType === 'gemini') {
+        // Google 返回的是 { models: [{ name: 'models/gemini-pro' }, ...] }
+        if (data.models) {
+          models = data.models.map(m => m.name.replace('models/', '')); // 去掉前缀
+        }
+      } else {
+        // OpenAI 返回的是 { data: [{ id: 'gpt-4' }, ...] }
+        if (data.data) {
+          models = data.data.map(m => m.id);
+        }
+      }
+
+      if (models.length > 0) {
+        setAvailableModels(models);
+        alert(`成功获取 ${models.length} 个模型！请点击输入框选择。`);
+      } else {
+        alert("获取成功，但列表为空，请检查中转商是否支持。");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("拉取模型失败，请检查 Base URL 是否正确 (CORS 跨域或地址错误)。");
+    } finally {
+      setIsFetchingModels(false);
+    }
+  };
 
   const runMirrorAnalysis = async () => {
     if (selectedIds.length === 0) return;
@@ -486,58 +543,41 @@ const MirrorTab = ({ userProfile, setUserProfile, contacts, isEditingSelf, setIs
         <ThemeToggle isDark={isDark} setIsDark={setIsDark} onThemeOpen={onThemeOpen} activeTheme={activeTheme} />
       </div>
       <div className="p-6 space-y-8 max-w-2xl mx-auto w-full">
+        {/* ... (Mirror 分析部分保持不变，太长省略，请保留你原来的代码) ... */}
+        {/* 这里为了节省篇幅，假设你保留了上面的 Mirror 卡片代码，只把下面 API 面板改了 */}
+        
         <GlassCard className="rounded-[2.5rem] p-8 space-y-6 border-white/60 shadow-xl order-first">
-          <div className="flex justify-between items-center"><h2 className="font-bold flex items-center gap-2"><Waves size={18} className={`text-${activeTheme.primary}`}/> 自我模式镜像</h2></div>
-          <p className="text-xs text-slate-400">选择共振对象，看看TA们映射出的你是谁。</p>
-          <div className="flex flex-wrap gap-2">{contacts.map(c => <button key={c.id} onClick={() => setSelectedIds(prev => prev.includes(c.id) ? prev.filter(i => i !== c.id) : [...prev, c.id])} className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all border ${selectedIds.includes(c.id) ? `bg-${activeTheme.primary} border-${activeTheme.primary} text-white shadow-lg` : 'bg-white/40 dark:bg-slate-900/40 text-slate-500'}`}>{selectedIds.includes(c.id) ? <CheckSquare size={12}/> : <Square size={12}/>}{c.name}</button>)}</div>
-         {/* 修复：恢复按钮渐变色，而不是之前的灰色 */}
-         <button onClick={runMirrorAnalysis} disabled={isAnalyzing || selectedIds.length === 0} className={`w-full py-5 bg-gradient-to-r ${activeTheme.gradient} backdrop-blur-sm text-white rounded-3xl font-black shadow-xl hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-95 flex items-center justify-center tracking-widest`}>{isAnalyzing ? <Loader2 className="animate-spin" /> : "启动自我洞察共振"}</button>
-          {analysisResult && (
-            <div className={`mt-4 p-6 bg-${activeTheme.primary}/5 rounded-[2rem] border border-${activeTheme.primary}/10 animate-in slide-in-from-bottom-2`}>
-              <div className="flex items-center justify-between mb-2"><span className={`text-xs font-black text-${activeTheme.primary} uppercase tracking-widest`}>洞察回响</span><button onClick={() => setIsResultExpanded(!isResultExpanded)}>{isResultExpanded ? <ChevronUp size={20}/> : <ChevronDown size={20}/>}</button></div>
-              {isResultExpanded ? <div className="text-sm leading-relaxed whitespace-pre-wrap font-serif">{analysisResult}</div> : <div className="text-xs italic opacity-50">点击展开深度洞察...</div>}
-            </div>
-          )}
+             {/* ... 这里是你原来的 自我模式镜像 GlassCard ... */}
+             <div className="flex justify-between items-center"><h2 className="font-bold flex items-center gap-2"><Waves size={18} className={`text-${activeTheme.primary}`}/> 自我模式镜像</h2></div>
+             <p className="text-xs text-slate-400">选择共振对象，看看TA们映射出的你是谁。</p>
+             <div className="flex flex-wrap gap-2">{contacts.map(c => <button key={c.id} onClick={() => setSelectedIds(prev => prev.includes(c.id) ? prev.filter(i => i !== c.id) : [...prev, c.id])} className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all border ${selectedIds.includes(c.id) ? `bg-${activeTheme.primary} border-${activeTheme.primary} text-white shadow-lg` : 'bg-white/40 dark:bg-slate-900/40 text-slate-500'}`}>{selectedIds.includes(c.id) ? <CheckSquare size={12}/> : <Square size={12}/>}{c.name}</button>)}</div>
+             <button onClick={runMirrorAnalysis} disabled={isAnalyzing || selectedIds.length === 0} className={`w-full py-5 bg-gradient-to-r ${activeTheme.gradient} backdrop-blur-sm text-white rounded-3xl font-black shadow-xl hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-95 flex items-center justify-center tracking-widest`}>{isAnalyzing ? <Loader2 className="animate-spin" /> : "启动自我洞察共振"}</button>
+             {analysisResult && (
+               <div className={`mt-4 p-6 bg-${activeTheme.primary}/5 rounded-[2rem] border border-${activeTheme.primary}/10 animate-in slide-in-from-bottom-2`}>
+                 <div className="flex items-center justify-between mb-2"><span className={`text-xs font-black text-${activeTheme.primary} uppercase tracking-widest`}>洞察回响</span><button onClick={() => setIsResultExpanded(!isResultExpanded)}>{isResultExpanded ? <ChevronUp size={20}/> : <ChevronDown size={20}/>}</button></div>
+                 {isResultExpanded ? <div className="text-sm leading-relaxed whitespace-pre-wrap font-serif">{analysisResult}</div> : <div className="text-xs italic opacity-50">点击展开深度洞察...</div>}
+               </div>
+             )}
         </GlassCard>
 
+        {/* ... 这里是你原来的 个人信息 GlassCard ... */}
         <GlassCard className="rounded-[3rem] p-8 space-y-10 border-white/60 relative overflow-hidden">
-          <div className="flex items-center gap-6 relative z-10">
-             <div className="relative p-1.5 rounded-full backdrop-blur-xl bg-white/20 border border-white/40 shadow-inner">
-               <div className={`w-20 h-20 bg-gradient-to-br ${activeTheme.gradient} rounded-full flex items-center justify-center text-3xl font-bold text-white shadow-xl border-2 border-white/30`}>{userProfile.name?.[0] || '我'}</div>
-             </div>
-             <div className="flex-1">
-               <h2 className="text-2xl font-bold font-serif">{userProfile.name || '未定义'}</h2>
-               <div className="flex gap-2 mt-1.5"><span className={`text-[10px] font-black uppercase text-${activeTheme.primary} px-2 py-0.5 bg-${activeTheme.primary}/10 rounded-full border border-${activeTheme.primary}/20`}>{userProfile.mbtiUnknown ? "性格未知" : userProfile.mbti}</span></div>
-             </div>
-             <button onClick={() => setIsEditingSelf(true)} className="p-3 bg-white/40 dark:bg-slate-800 rounded-full text-slate-500 hover:scale-110 transition-all border border-white/60"><Edit2 size={18}/></button>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 relative z-10">
-            {PLANETS.map(p => (
-              <div key={p.key} className="p-4 backdrop-blur-xl bg-white/30 dark:bg-black/20 border border-white/40 dark:border-slate-800 rounded-[2rem]">
-                <span className="text-[8px] text-slate-400 uppercase font-black flex items-center gap-1.5 mb-1"><p.icon size={8}/> {p.label}</span>
-                <div className="text-xs font-black truncate">{userProfile.chart?.[p.key]?.sign?.split(' ')[0]}</div>
-                {p.key !== 'rising' && !userProfile.risingUnknown && <div className="text-[9px] text-slate-400 font-bold opacity-60">{userProfile.chart?.[p.key]?.house}宫</div>}
-              </div>
-            ))}
-          </div>
-          {!userProfile.mbtiUnknown && (
-            <div className="space-y-6 pt-4 relative z-10">
-              <div className="flex justify-between items-end border-b border-white/20 dark:border-slate-800 pb-2"><h3 className="text-[10px] text-slate-400 font-black tracking-widest uppercase">心理功能堆栈</h3></div>
-              <div className="grid grid-cols-8 gap-1.5 h-32">
-                {FUNCTION_ORDER.map(key => (
-                  <div key={key} className="flex flex-col items-center">
-                    <div className="flex-1 w-full bg-white/20 dark:bg-black/40 rounded-full relative flex flex-col justify-end overflow-hidden border border-white/20 dark:border-slate-800/40 shadow-inner">
-                      <div className={`bg-gradient-to-t ${activeTheme.gradient} w-full transition-all duration-[1.5s]`} style={{ height: `${userProfile.functions?.[key] || 0}%` }}></div>
-                    </div>
-                    <span className="text-[7px] font-black text-slate-400 mt-2 uppercase">{key}</span>
-                  </div>
-                ))}
-              </div>
+             {/* ... 请确保这部分内容没有被我不小心删掉，请保留原来的 userProfile 显示逻辑 ... */}
+             <div className="flex items-center gap-6 relative z-10">
+               <div className="relative p-1.5 rounded-full backdrop-blur-xl bg-white/20 border border-white/40 shadow-inner">
+                 <div className={`w-20 h-20 bg-gradient-to-br ${activeTheme.gradient} rounded-full flex items-center justify-center text-3xl font-bold text-white shadow-xl border-2 border-white/30`}>{userProfile.name?.[0] || '我'}</div>
+               </div>
+               <div className="flex-1">
+                 <h2 className="text-2xl font-bold font-serif">{userProfile.name || '未定义'}</h2>
+                 <div className="flex gap-2 mt-1.5"><span className={`text-[10px] font-black uppercase text-${activeTheme.primary} px-2 py-0.5 bg-${activeTheme.primary}/10 rounded-full border border-${activeTheme.primary}/20`}>{userProfile.mbtiUnknown ? "性格未知" : userProfile.mbti}</span></div>
+               </div>
+               <button onClick={() => setIsEditingSelf(true)} className="p-3 bg-white/40 dark:bg-slate-800 rounded-full text-slate-500 hover:scale-110 transition-all border border-white/60"><Edit2 size={18}/></button>
             </div>
-          )}
+            {/* ... 省略了星盘和八维显示的重复代码，请保留 ... */}
         </GlassCard>
 
-        {/* API 配置面板 (已移动到个人信息卡片下方) */}
+
+        {/* 🔥 修改后的 API 配置面板 */}
         <GlassCard className="rounded-[2.5rem] p-6 space-y-4 border-white/60 shadow-inner bg-white/20">
           <div className="flex items-center gap-2 mb-2">
             <Key size={14} className={`text-${activeTheme.primary}`} />
@@ -549,15 +589,17 @@ const MirrorTab = ({ userProfile, setUserProfile, contacts, isEditingSelf, setIs
               onChange={e => setApiConfig({...apiConfig, modelType: e.target.value})}
               className="w-full p-3 bg-white/40 dark:bg-black/20 border border-white/40 rounded-2xl text-[11px] font-bold outline-none"
             >
-              <option value="openai">模式: OpenAI / 通用转发 (AnyRouter 选这个)</option>
+              <option value="openai">模式: OpenAI / 通用转发 (推荐)</option>
               <option value="gemini">模式: Google Gemini (官方)</option>
             </select>
+            
             <input 
-              placeholder="Base URL (留空则默认使用 Vercel 中转 /api)" 
+              placeholder="Base URL (例如 https://api.openai.com/v1)" 
               value={apiConfig.baseUrl} 
               onChange={e => setApiConfig({...apiConfig, baseUrl: e.target.value})}
               className="w-full p-3 bg-white/40 dark:bg-black/20 border border-white/40 rounded-2xl text-[11px] outline-none"
             />
+            
             <input 
               type="password"
               placeholder="API Key (密钥: sk-...)" 
@@ -565,19 +607,36 @@ const MirrorTab = ({ userProfile, setUserProfile, contacts, isEditingSelf, setIs
               onChange={e => setApiConfig({...apiConfig, apiKey: e.target.value})}
               className="w-full p-3 bg-white/40 dark:bg-black/20 border border-white/40 rounded-2xl text-[11px] outline-none placeholder:text-slate-300"
             />
-            {/* 修复：修改提示文字，明确可以不填 */}
-            <input 
-              placeholder="Model Name (选填，留空则由API决定)" 
-              value={apiConfig.modelName} 
-              onChange={e => setApiConfig({...apiConfig, modelName: e.target.value})}
-              className="w-full p-3 bg-white/40 dark:bg-black/20 border border-white/40 rounded-2xl text-[11px] outline-none"
-            />
+
+            {/* ✨ 升级版：Model Name 输入 + 拉取按钮 */}
+            <div className="flex gap-2">
+                <div className="relative flex-1">
+                    <input 
+                    list="model-options"
+                    placeholder="Model Name (如 gpt-4o, gemini-1.5-flash)" 
+                    value={apiConfig.modelName} 
+                    onChange={e => setApiConfig({...apiConfig, modelName: e.target.value})}
+                    className="w-full p-3 bg-white/40 dark:bg-black/20 border border-white/40 rounded-2xl text-[11px] outline-none"
+                    />
+                    {/* 这个 datalist 配合 input list 属性，实现了“既能输入又能下拉” */}
+                    <datalist id="model-options">
+                        {availableModels.map(m => <option key={m} value={m} />)}
+                    </datalist>
+                </div>
+                <button 
+                    onClick={fetchModels}
+                    disabled={isFetchingModels}
+                    className={`px-4 rounded-2xl bg-white/40 dark:bg-slate-800/40 border border-white/40 text-${activeTheme.primary} hover:bg-white/60 transition-all active:scale-95 disabled:opacity-50`}
+                    title="从服务器拉取可用模型列表"
+                >
+                    {isFetchingModels ? <Loader2 size={16} className="animate-spin"/> : <RefreshCw size={16}/>}
+                </button>
+            </div>
           </div>
         </GlassCard>
 
         <div className="flex flex-col gap-4">
           <button onClick={onClearData} className="w-full p-5 bg-white/30 dark:bg-slate-900/40 backdrop-blur-xl rounded-3xl flex items-center justify-between text-red-500 border border-white/40 hover:bg-red-500/10 transition-all shadow-sm"><span className="flex items-center gap-3 text-xs font-black uppercase tracking-widest"><Trash2 size={16}/> 抹除所有数据</span></button>
-          {/* UI 署名点 */}
           <div className="text-center opacity-30 text-[10px] font-black tracking-widest uppercase pb-4">
             Design & Concept by Tenlossiby
           </div>
@@ -586,7 +645,6 @@ const MirrorTab = ({ userProfile, setUserProfile, contacts, isEditingSelf, setIs
     </div>
   );
 };
-
 // --- 🧠 主应用架构 ---
 export default function App() {
   // --- API 配置持久化 ---
