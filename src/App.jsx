@@ -792,7 +792,7 @@ const MirrorTab = ({ userProfile, setUserProfile, contacts, isEditingSelf, setIs
                 <div className="flex flex-col gap-4">
                     <button onClick={onClearData} className="w-full p-5 bg-white/30 dark:bg-red-900/10 backdrop-blur-xl rounded-3xl flex items-center justify-between text-red-500 border border-white/40 dark:border-white/5 hover:bg-red-500/10 transition-all shadow-sm"><span className="flex items-center gap-3 text-xs font-black uppercase tracking-widest"><Trash2 size={16}/> 抹除所有数据</span></button>
                     <div className="text-center opacity-30 text-[10px] font-black tracking-widest uppercase pb-4 dark:text-stone-600">
-                        Design & Concept by Tenlossiby
+                        Manifested by Tenlossiby
                     </div>
                 </div>
             </div>
