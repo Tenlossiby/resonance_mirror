@@ -230,7 +230,7 @@ const GuideOverlay = ({ isOpen, onClose, activeTheme }) => {
                                 <li>登录 <a href="https://aistudio.google.com/app/apikey" target="_blank" className={`underline decoration-${activeTheme.primary} font-bold hover:text-${activeTheme.primary}`}>Google AI Studio</a></li>
                                 <li>点击 <strong>Create API Key</strong></li>
                                 <li>复制生成的以 <code>AIza</code> 开头的长字符串</li>
-                                <li>回到本页，在上方 API 卡片中选择 <strong>Gemini</strong> 模式并填入 Key</li>
+                                <li>回到本页，在上方 API 卡片中选择 <strong>Gemini</strong> 模式并填入 Key (<strong>Base URL保持为空</strong>)</li>
                                 <li>点击右下角刷新，加载模型，选择 gemini-2.5-flash （如果无法选择，请将所有已填项清空）</li>
                             </ol>
                         </div>
@@ -240,7 +240,7 @@ const GuideOverlay = ({ isOpen, onClose, activeTheme }) => {
                             <ol className="list-decimal list-inside space-y-1 text-slate-600 dark:text-stone-400 ml-1">
                                 <li>从你的服务商处获取 <code>sk-</code> 开头的 Key</li>
                                 <li>获取接口地址 (Base URL)，例如 <code>https://api.xyz.com/v1</code></li>
-                                <li>在本页选择 <strong>OpenAI</strong> 模式，填入 Base URL 和 Key</li>
+                                <li>在本页选择 <strong>OpenAI</strong> 模式，填入 <strong>Base URL</strong> 和 <strong>Key</strong></li>
                                 <li>点击右下角刷新，加载模型，选择可使用模型 （如果无法选择，请将所有已填项清空）</li>
                             </ol>
                         </div>
