@@ -243,9 +243,9 @@ const GuideOverlay = ({ isOpen, onClose, activeTheme }) => {
                                 <li>在本页选择 <strong>OpenAI</strong> 模式，填入 <strong>Base URL</strong> 和 <strong>Key</strong></li>
                                 <li>点击右下角刷新，加载模型，选择可使用模型 （如果无法选择，请将所有已填项清空）</li>
                             </ol>
-                            
-                        <p><strong>该应用只通过 API Key 联网，所有聊天数据只保存在你的浏览器中，没有云存储</strong>，如果你想保留对话记录，请点击页面下载按钮全量导出。</p>
                         </div>
+                        
+                        <p><strong>该应用只通过 API Key 联网，所有聊天数据只保存在你的浏览器中，没有云存储</strong>，如果你想保留对话记录，请点击页面下载按钮全量导出。</p>
                     </div>
                 </div>
 
