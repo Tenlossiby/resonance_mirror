@@ -225,12 +225,13 @@ const GuideOverlay = ({ isOpen, onClose, activeTheme }) => {
                         <p>为了让 AI 能够思考和说话，你需要填入 API Key。这是一个纯前端应用，Key <strong>只保存在你的浏览器里</strong>，不会上传服务器。</p>
                         
                         <div className="space-y-2 pt-2">
-                            <h3 className="font-black text-slate-700 dark:text-stone-300">方案 A：Google Gemini (推荐，免费)</h3>
+                            <h3 className="font-black text-slate-700 dark:text-stone-300">方案 A：Google Gemini </h3>
                             <ol className="list-decimal list-inside space-y-1 text-slate-600 dark:text-stone-400 ml-1">
                                 <li>登录 <a href="https://aistudio.google.com/app/apikey" target="_blank" className={`underline decoration-${activeTheme.primary} font-bold hover:text-${activeTheme.primary}`}>Google AI Studio</a></li>
                                 <li>点击 <strong>Create API Key</strong></li>
                                 <li>复制生成的以 <code>AIza</code> 开头的长字符串</li>
                                 <li>回到本页，在上方 API 卡片中选择 <strong>Gemini</strong> 模式并填入 Key</li>
+                                <li>点击右下角刷新，加载模型，选择 gemini-2.5-flash （如果无法选择，请将所有已填项清空）</li>
                             </ol>
                         </div>
 
@@ -240,6 +241,7 @@ const GuideOverlay = ({ isOpen, onClose, activeTheme }) => {
                                 <li>从你的服务商处获取 <code>sk-</code> 开头的 Key</li>
                                 <li>获取接口地址 (Base URL)，例如 <code>https://api.xyz.com/v1</code></li>
                                 <li>在本页选择 <strong>OpenAI</strong> 模式，填入 Base URL 和 Key</li>
+                                <li>点击右下角刷新，加载模型，选择可使用模型 （如果无法选择，请将所有已填项清空）</li>
                             </ol>
                         </div>
                     </div>
@@ -251,13 +253,13 @@ const GuideOverlay = ({ isOpen, onClose, activeTheme }) => {
                         <div className="p-5 bg-white/40 dark:bg-[#18181b] rounded-3xl border border-white/40 dark:border-white/5">
                             <h3 className="font-black mb-2 text-slate-700 dark:text-stone-300">1. 显影立格 (角色创建)</h3>
                             <p className="text-xs text-slate-500 dark:text-stone-500 leading-relaxed">
-                                点击 <Plus size={12} className="inline"/> 创建。详细配置 TA 的<strong>星座星盘</strong>和 <strong>MBTI 八维</strong>。不知生辰？勾选"未知"，AI 会自动推演。
+                                点击 <Plus size={12} className="inline"/> 创建。详细配置 TA 的<strong>星座星盘</strong>和 <strong>MBTI 八维</strong>。只想随机模拟？勾选"未知"，AI 会自动推演。
                             </p>
                         </div>
                         <div className="p-5 bg-white/40 dark:bg-[#18181b] rounded-3xl border border-white/40 dark:border-white/5">
                             <h3 className="font-black mb-2 text-slate-700 dark:text-stone-300">2. 深度共振分析</h3>
                             <p className="text-xs text-slate-500 dark:text-stone-500 leading-relaxed">
-                                聊天中点击 <Activity size={12} className="inline"/> 图标。AI 将作为"心理占星师"，结合星盘与对话，分析 TA 当下的真实心理状态。
+                                聊天中点击 <Activity size={12} className="inline"/> 图标。AI 将作为"心理占星师"，结合星盘与对话，分析 TA 当下的心理状态。
                             </p>
                         </div>
                     </div>
@@ -277,7 +279,7 @@ const GuideOverlay = ({ isOpen, onClose, activeTheme }) => {
 
                 <div className="text-center pt-8 opacity-50 text-xs">
                     <p>所有数据仅存储于本地浏览器</p>
-                    <p className="mt-2 font-serif italic">Resonance Mirror © 2024</p>
+                    <p className="mt-2 font-serif italic">Resonance Mirror @Tenlossiby</p>
                 </div>
             </div>
         </div>
@@ -784,7 +786,7 @@ const MirrorTab = ({ userProfile, setUserProfile, contacts, isEditingSelf, setIs
                     className="w-full py-4 rounded-[2rem] border border-dashed border-slate-300 dark:border-white/10 flex items-center justify-center gap-2 text-slate-400 dark:text-stone-500 hover:bg-white/40 dark:hover:bg-white/5 transition-all group"
                 >
                     <BookOpen size={16} className={`group-hover:text-${activeTheme.primary} transition-colors`} />
-                    <span className="text-xs font-bold uppercase tracking-widest group-hover:text-slate-600 dark:group-hover:text-stone-300">Resonance 使用指南</span>
+                    <span className="text-xs font-bold uppercase tracking-widest group-hover:text-slate-600 dark:group-hover:text-stone-300">Resonance Mirror 使用指南</span>
                 </button>
 
                 <div className="flex flex-col gap-4">
