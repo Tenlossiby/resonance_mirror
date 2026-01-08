@@ -203,7 +203,6 @@ const ThemeToggle = ({ isDark, setIsDark, onThemeOpen, activeTheme }) => (
 );
 
 // --- 用户指南组件 (User Guide) ---
-// 你可以在这里修改指南的文案。修改后保存并 git push 即可更新。
 const GuideOverlay = ({ isOpen, onClose, activeTheme }) => {
     if (!isOpen) return null;
     return (
@@ -477,13 +476,20 @@ const ChatInterface = ({ contact, onUpdateContact, onBack, onEdit, userProfile, 
     const [isTyping, setIsTyping] = useState(false);
     const [context, setContext] = useState(contact?.context || '');
     const messagesEndRef = useRef(null);
+    const textareaRef = useRef(null);
 
     useEffect(() => { if (contact) { onUpdateContact({ ...contact, messages, context }); messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }}, [messages, context]);
 
     const handleSend = async (customPrompt) => {
         const text = customPrompt || input;
         if (!text.trim()) return;
-        if (!customPrompt) { setMessages(prev => [...prev, { role: 'user', content: text }]); setInput(''); }
+        if (!customPrompt) { 
+            setMessages(prev => [...prev, { role: 'user', content: text }]); 
+            setInput(''); 
+            if (textareaRef.current) {
+                textareaRef.current.style.height = 'auto';
+            }
+        }
         setIsTyping(true);
         const history = messages.slice(-10).map(m => `${m.role}: ${m.content}`).join('\n');
         const sys = `你正在扮演 ${contact.name}。你的MBTI是 ${contact.mbtiUnknown ? '未知' : contact.mbti}。当前情境是: ${context}。回复请真实、口语化，多用标点，禁止Markdown。绝对禁止回复超过150字。`;
@@ -589,9 +595,26 @@ const ChatInterface = ({ contact, onUpdateContact, onBack, onEdit, userProfile, 
                 <div ref={messagesEndRef} />
             </div>
             <div className="p-4 absolute bottom-0 left-0 right-0 z-50">
-                <GlassCard className="rounded-[2.5rem] p-2 flex gap-2 border-white/60 dark:border-white/5 shadow-xl bg-white/50 dark:bg-[#121212]">
+                <GlassCard className="rounded-[2.5rem] p-2 flex items-end gap-2 border-white/60 dark:border-white/5 shadow-xl bg-white/50 dark:bg-[#121212]">
                     <button onClick={() => handleSend("((眼神交流并尝试回应))")} className={`p-3 text-${activeTheme.primary} dark:brightness-90`}><Waves size={20}/></button>
-                    <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} placeholder="发送显影信号..." className={`flex-1 bg-transparent px-2 py-3 text-sm outline-none dark:text-stone-200 placeholder:text-stone-600 caret-${activeTheme.primary}`}/>
+                    <textarea 
+                        ref={textareaRef}
+                        value={input} 
+                        onChange={e => {
+                            setInput(e.target.value);
+                            e.target.style.height = 'auto';
+                            e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
+                        }} 
+                        onKeyDown={e => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSend();
+                            }
+                        }}
+                        placeholder="发送显影信号..." 
+                        rows={1}
+                        className={`flex-1 bg-transparent px-2 py-3 text-sm outline-none dark:text-stone-200 placeholder:text-stone-600 caret-${activeTheme.primary} resize-none max-h-[120px] overflow-y-auto`}
+                    />
                     <button onClick={() => handleSend()} className={`p-3 bg-${activeTheme.primary} text-white rounded-full dark:brightness-75`}><Send size={20} /></button>
                 </GlassCard>
             </div>
